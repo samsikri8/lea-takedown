@@ -1,0 +1,7 @@
+node_modules/
+.env
+.vault-key
+.attestation-key
+vault.db
+vault.db-*
+server.log

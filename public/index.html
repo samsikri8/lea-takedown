@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lea — Evidence → Takedown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pink-50:#FBEAF0;--pink-100:#F4C0D1;--pink-200:#ED93B1;--pink-400:#D4537E;
+  --pink-600:#993556;--pink-800:#72243E;--pink-900:#4B1528;
+  --teal-50:#E1F5EE;--teal-100:#9FE1CB;--teal-400:#1D9E75;--teal-600:#0F6E56;--teal-800:#085041;
+  --amber-50:#FAEEDA;--amber-200:#FAC775;--amber-600:#854F0B;--amber-800:#633806;
+  --red-50:#FCEBEB;--red-100:#F7C1C1;--red-600:#A32D2D;--red-800:#791F1F;
+  --gray-50:#F1EFE8;--gray-100:#D3D1C7;--gray-400:#888780;--gray-600:#5F5E5A;--gray-800:#444441;--gray-900:#2C2C2A;
+  --bg:#FAFAF9;--bg-card:#FFFFFF;--text:#2C2C2A;--text-muted:#5F5E5A;--text-hint:#888780;
+  --border:rgba(44,44,42,.12);--border-med:rgba(44,44,42,.22);--r-md:8px;--r-lg:12px;--r-xl:16px;
+  /* Brand type — warm rounded. Swap these two if the exact family differs. */
+  --font-head:'Fredoka','Nunito',system-ui,sans-serif;
+  --font-body:'Nunito',system-ui,sans-serif;
+}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6}
+.topbar{background:var(--bg-card);border-bottom:.5px solid var(--border);padding:0 1.5rem;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.lea{font-family:var(--font-head);font-size:19px;font-weight:600;color:var(--pink-600);letter-spacing:-.01em}
+.topbar-center{font-size:13px;color:var(--text-muted);font-weight:500}
+@media(max-width:640px){.topbar-center{display:none}}
+.quick-exit{font-size:12px;padding:6px 12px;background:var(--gray-900);color:#fff;border:none;border-radius:var(--r-md);cursor:pointer;font-weight:500}
+.page{max-width:760px;margin:0 auto;padding:2rem 1.5rem 5rem}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--pink-600);margin-bottom:6px}
+.title{font-family:var(--font-head);font-size:27px;font-weight:600;letter-spacing:-.01em;margin-bottom:8px}
+.sub{font-size:14px;color:var(--text-muted);margin-bottom:1.25rem}
+.safety-bar{display:flex;gap:10px;padding:10px 14px;background:var(--amber-50);border:.5px solid var(--amber-200);border-radius:var(--r-md);margin-bottom:1.5rem}
+.safety-bar span{font-size:13px;color:var(--amber-800)}
+.steps{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+.step{flex:1;min-width:110px;padding:10px 12px;border:.5px solid var(--border);border-radius:var(--r-md);background:var(--bg-card);font-size:12px;color:var(--text-hint);text-align:center;font-weight:500}
+.step.active{border-color:var(--pink-400);color:var(--pink-800);background:var(--pink-50)}
+.step.done{border-color:var(--teal-100);color:var(--teal-800);background:var(--teal-50)}
+.card{background:var(--bg-card);border:.5px solid var(--border);border-radius:var(--r-xl);padding:1.5rem;margin-bottom:1.25rem}
+.card h3{font-family:var(--font-head);font-size:16px;font-weight:600;margin-bottom:4px}
+.card p.hint{font-size:13px;color:var(--text-muted);margin-bottom:1rem}
+.browser{border:.5px solid var(--border-med);border-radius:var(--r-lg);overflow:hidden;margin-bottom:1rem}
+.browser-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--gray-50);border-bottom:.5px solid var(--border)}
+.dot{width:9px;height:9px;border-radius:50%}
+.dot.r{background:#E5695B}.dot.y{background:#E7B44C}.dot.g{background:#54B77E}
+.url{flex:1;font-size:12px;color:var(--text-muted);background:#fff;border:.5px solid var(--border);border-radius:20px;padding:3px 12px;font-family:monospace}
+.viewport{position:relative;height:150px;background:linear-gradient(180deg,#fff, #f6f4ef)}
+.redacted{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;filter:blur(6px);opacity:.5;user-select:none;pointer-events:none}
+.redacted .bar{height:10px;background:var(--gray-100);border-radius:4px}
+.shield{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--text-hint);font-size:12px}
+.shield .lock{font-size:22px}
+.btn{width:100%;padding:13px;background:var(--pink-600);color:#fff;border:none;border-radius:var(--r-lg);font-size:15px;font-weight:600;cursor:pointer;transition:background .15s}
+.btn:hover{background:var(--pink-800)}
+.btn:disabled{background:var(--gray-100);color:var(--gray-400);cursor:not-allowed}
+.btn.secondary{background:var(--bg-card);color:var(--pink-800);border:.5px solid var(--pink-200)}
+.row{display:flex;gap:8px;margin-bottom:10px}
+.row .btn{width:auto;flex:1}
+label.fld{display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin:10px 0 4px}
+input.txt,textarea{width:100%;border:.5px solid var(--border-med);border-radius:var(--r-lg);padding:11px 14px;font-size:14px;font-family:inherit;line-height:1.6;color:var(--text);background:#fff}
+textarea{resize:none}
+input.txt:focus,textarea:focus{outline:none;border-color:var(--pink-400)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{font-size:12px;padding:6px 12px;border:.5px solid var(--pink-200);border-radius:20px;background:var(--pink-50);color:var(--pink-800);cursor:pointer}
+.chip.on{background:var(--pink-600);color:#fff;border-color:var(--pink-600)}
+.muted{font-size:12px;color:var(--text-hint);margin-top:8px}
+.log{background:var(--bg-card);border:.5px solid var(--border);border-radius:var(--r-xl);overflow:hidden;margin-bottom:1.25rem;display:none}
+.log-head{padding:12px 16px;border-bottom:.5px solid var(--border);display:flex;align-items:center;gap:10px}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--pink-400);animation:pulse 1.2s ease-in-out infinite}
+.pulse.done{background:var(--teal-400);animation:none}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+.log-head-title{font-size:13px;font-weight:600}
+.log-body{padding:12px 16px;max-height:360px;overflow-y:auto}
+.entry{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.entry .ico{font-size:14px;min-width:18px;text-align:center;margin-top:1px}
+.entry .txt{font-size:13px;color:var(--text-muted);line-height:1.5}
+.entry .txt strong{color:var(--text);font-weight:500}
+.tool{font-family:monospace;font-size:12px;background:var(--gray-50);padding:1px 6px;border-radius:4px;color:var(--pink-800);border:.5px solid var(--pink-100)}
+.results{display:none}
+.block-title{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-hint);margin:1.25rem 0 10px}
+.seal-card{border:.5px solid var(--teal-100);background:var(--teal-50);border-radius:var(--r-lg);padding:1rem 1.25rem;margin-bottom:10px}
+.seal-card .seal-h{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--teal-800);font-size:14px;margin-bottom:8px}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:12px;padding:4px 0;border-bottom:.5px dashed var(--teal-100)}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--teal-800);font-weight:500}
+.kv .v{font-family:monospace;color:var(--gray-800);word-break:break-all;text-align:right}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.pill.ok{background:#fff;color:var(--teal-800);border:.5px solid var(--teal-100)}
+.verdict{border:.5px solid var(--border);border-radius:var(--r-xl);overflow:hidden;margin-bottom:10px}
+.verdict-top{background:var(--pink-900);padding:1rem 1.25rem}
+.verdict-lbl{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--pink-200);margin-bottom:4px}
+.verdict-name{font-family:var(--font-head);font-size:19px;font-weight:600;color:#fff}
+.verdict-sub{font-size:12px;color:var(--pink-200);margin-top:2px}
+.verdict-body{padding:1rem 1.25rem;font-size:13px;color:var(--text-muted)}
+.tag{display:inline-block;font-size:12px;padding:3px 10px;background:var(--pink-50);color:var(--pink-800);border:.5px solid var(--pink-100);border-radius:20px;margin:2px 4px 2px 0}
+.notice{background:var(--gray-50);border:.5px solid var(--border);border-radius:var(--r-lg);padding:1rem 1.25rem;font-size:13px;color:var(--text-muted);line-height:1.7;white-space:pre-wrap;margin-bottom:10px}
+.notice strong{color:var(--text)}
+.filing{display:flex;align-items:center;justify-content:space-between;border:.5px solid var(--border);border-left:2px solid var(--teal-400);border-radius:var(--r-md);padding:10px 14px;margin-bottom:8px}
+.filing .p{font-size:14px;font-weight:500}
+.filing .s{font-size:12px;color:var(--text-hint);font-family:monospace}
+.status{font-size:12px;padding:3px 10px;border-radius:20px;font-weight:500}
+.status.sent{background:var(--teal-50);color:var(--teal-800);border:.5px solid var(--teal-100)}
+.status.over{background:var(--amber-50);color:var(--amber-800);border:.5px solid var(--amber-200)}
+.summary{border:.5px solid var(--border);border-radius:var(--r-xl);padding:0;overflow:hidden}
+.summary .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;padding:1.25rem;border-bottom:.5px solid var(--border)}
+.summary .m{text-align:center}
+.summary .m .n{font-size:26px;font-weight:600}
+.summary .m .l{font-size:11px;color:var(--text-muted)}
+.ref{display:flex;justify-content:space-between;align-items:center;background:var(--gray-50);border-radius:var(--r-md);padding:10px 14px;margin:1.25rem;font-size:13px}
+.ref .num{font-family:monospace;font-weight:600}
+.foot{font-size:12px;color:var(--text-hint);text-align:center;margin-top:2rem;line-height:1.6}
+.divider{height:.5px;background:var(--border);margin:1.5rem 0}
+.err{background:var(--red-50);border:.5px solid var(--red-100);color:var(--red-800);border-radius:var(--r-md);padding:10px 14px;font-size:13px;margin-top:10px;display:none}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="lea">Lea</span>
+  <span class="topbar-center">Evidence → Takedown</span>
+  <button class="quick-exit" onclick="location.href='https://weather.com'">Quick exit ✕</button>
+</div>
+
+<div class="page">
+  <p class="eyebrow">Agentic harassment response</p>
+  <h1 class="title">Capture it once. Lea seals it and acts.</h1>
+  <p class="sub">Connect your account, point Lea at the post, and say what happened. Lea seals tamper-evident evidence, classifies the harm, drafts a legal notice, and files it — without you having to look at the content again.</p>
+
+  <div class="safety-bar"><span>⚠</span><span>In immediate danger? Call 911. Cyber Civil Rights crisis line: 1-844-878-CCRI.</span></div>
+
+  <div class="steps">
+    <div class="step active" id="s1">1 · Connect</div>
+    <div class="step" id="s2">2 · Capture &amp; seal</div>
+    <div class="step" id="s3">3 · Describe</div>
+    <div class="step" id="s4">4 · Lea acts</div>
+    <div class="step" id="s5">5 · Case</div>
+  </div>
+
+  <!-- PHASE 1 · CONNECT -->
+  <div class="card" id="phase1">
+    <h3>🔗 Connect the platform</h3>
+    <p class="hint">Authorize the account where the harassment is, so Lea can reach the content — including login-gated posts. Your credentials are sealed in the vault; only the platform <em>name</em> is used for classification.</p>
+    <div class="row">
+      <button class="btn secondary" id="oauthBtn" onclick="startOAuth()">Authorize with OAuth →</button>
+      <button class="btn secondary" id="sessionBtn" onclick="toggleSession()">Import browser session</button>
+    </div>
+    <div id="sessionBox" style="display:none">
+      <label class="fld">Platform</label>
+      <input class="txt" id="sessPlatform" value="Instagram">
+      <label class="fld">Playwright <code>storageState</code> JSON (exported cookies for your logged-in session)</label>
+      <textarea id="sessState" rows="3" placeholder='{"cookies":[...],"origins":[...]}'></textarea>
+      <div class="muted">This never leaves your machine unencrypted — it's AES-256-GCM sealed on save.</div>
+      <button class="btn" style="margin-top:10px" onclick="saveSession()">Save session</button>
+    </div>
+    <div id="connList" class="muted"></div>
+    <div class="divider"></div>
+    <button class="btn" id="toCapture" onclick="gotoCapture()">Continue to capture →</button>
+    <div class="muted">You can also continue without connecting — Lea will capture the public view of the post.</div>
+  </div>
+
+  <!-- PHASE 2 · CAPTURE -->
+  <div class="card" id="phase2" style="display:none">
+    <h3>🔒 Capture &amp; seal the evidence</h3>
+    <p class="hint">Paste the link to the post. Lea opens it in-session, screenshots the full page, hashes it, and signs a tamper-evident seal — the content is stored but never shown back to you.</p>
+    <label class="fld">Link to the harassing post</label>
+    <input class="txt" id="postUrl" placeholder="https://instagram.com/p/…">
+    <div class="browser" style="margin-top:12px">
+      <div class="browser-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url" id="urlBar">the post · your session</span></div>
+      <div class="viewport">
+        <div class="redacted"><div class="bar" style="width:60%"></div><div class="bar" style="width:80%"></div><div class="bar" style="width:45%"></div></div>
+        <div class="shield"><div class="lock">🛡️</div><div>Content hidden from you by design</div></div>
+      </div>
+    </div>
+    <button class="btn" id="sealBtn" onclick="doSeal()">Seal this page as evidence →</button>
+    <div class="err" id="sealErr"></div>
+  </div>
+
+  <!-- PHASE 3 · DESCRIBE -->
+  <div class="card" id="phase3" style="display:none">
+    <h3>Tell Lea what happened</h3>
+    <p class="hint">A sentence is enough — no links, no re-reading. Your sealed evidence is already attached.</p>
+    <textarea id="desc" rows="3">My ex is posting intimate photos of me without my consent on Instagram.</textarea>
+    <div style="margin:10px 0;font-size:12px;color:var(--teal-800);background:var(--teal-50);border:.5px solid var(--teal-100);border-radius:var(--r-md);padding:8px 12px">📎 Sealed evidence attached · <span id="attachRef" style="font-family:monospace"></span></div>
+    <button class="btn" id="actBtn" onclick="doRun()">Lea, take action →</button>
+    <div class="err" id="runErr"></div>
+  </div>
+
+  <div class="log" id="log">
+    <div class="log-head"><div class="pulse" id="pulse"></div><span class="log-head-title" id="logTitle">Lea is working…</span></div>
+    <div class="log-body" id="logBody"></div>
+  </div>
+
+  <div class="results" id="results"></div>
+
+  <p class="foot" id="foot" style="display:none">Real backend · Playwright capture · Ed25519-sealed evidence · Gemini classification &amp; drafting · filed over the platform's real legal channel. Everything is stored under one case in your encrypted Vault.</p>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
