@@ -232,17 +232,27 @@ function renderCase(result) {
 // ── boot ─────────────────────────────────────────────────────────────────────
 (async function boot() {
   await refreshConnections();
+
   const params = new URLSearchParams(location.search);
+
   const connected = params.get("connected");
-  if (connected) {
-    // Returned from a successful OAuth authorization.
-    state.platform = connected;
+  const gmailConnected = params.get("gmailConnected");
+
+  if (connected || gmailConnected) {
+    const name = connected ?? `Gmail (${gmailConnected})`;
+
+    state.platform = connected ?? "Gmail";
+
     const banner = document.createElement("div");
     banner.style.cssText =
-      "margin-top:10px;font-size:13px;color:var(--teal-800);background:var(--teal-50);" +
-      "border:.5px solid var(--teal-100);border-radius:var(--r-md);padding:10px 12px";
-    banner.innerHTML = `✓ Authorized <strong>${connected}</strong> — account sealed in your vault.`;
+      "margin-top:10px;font-size:13px;color:var(--teal-700);" +
+      "border:1.5px solid var(--teal-100);border-radius:12px;" +
+      "padding:10px 12px;background:var(--teal-50);";
+
+    banner.innerHTML = `✓ Authorized <strong>${name}</strong>`;
+
     $("connList").after(banner);
-    history.replaceState({}, "", location.pathname); // drop the query string
+
+    history.replaceState({}, "", location.pathname);
   }
 })();

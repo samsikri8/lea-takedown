@@ -33,7 +33,11 @@ type Emit = (e: RunEvent) => void;
  * case is persisted under one reference in the vault.
  */
 export async function runTakedown(
-  input: { evidenceId: string; description: string },
+  input: {
+    evidenceId: string;
+    description: string;
+    gmailConnectionId?: string;
+  },
   emit: Emit,
 ): Promise<CaseResult> {
   const evidence = getEvidenceMeta(input.evidenceId);
@@ -72,11 +76,12 @@ export async function runTakedown(
   // 4 — file
   emit({ kind: "step", icon: "⚡", message: `file_to_platform → ${evidence.platform}` });
   const filing = await fileTakedown({
-    platform: evidence.platform,
-    classification,
-    evidence,
-    notice,
-  });
+  platform: evidence.platform,
+  classification,
+  evidence,
+  notice,
+  gmailConnectionId: input.gmailConnectionId,
+});
   emit({
     kind: "ok",
     icon: filing.delivered ? "✓" : "⚠",

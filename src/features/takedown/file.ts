@@ -2,6 +2,7 @@ import nodemailer from "nodemailer";
 import { config } from "../../config.js";
 import { filingRef } from "../../util/ids.js";
 import { channelFor } from "./platforms.js";
+import { sendWithGmail } from "./gmail-send.js";
 import type { Classification } from "../classify/classify.service.js";
 import type { EvidenceMeta } from "../capture/capture.service.js";
 
@@ -51,6 +52,7 @@ export async function fileTakedown(input: {
   classification: Classification;
   evidence: EvidenceMeta;
   notice: string;
+  gmailConnectionId?: string;
 }): Promise<FilingRecord> {
   const channel = channelFor(input.platform);
   const confirmation = filingRef();
@@ -76,23 +78,11 @@ export async function fileTakedown(input: {
     };
   }
 
-  // SMTP not configured → dry-run (notice ready, nothing sent).
-  if (config.smtp.dryRun) {
-    return {
-      ...base,
-      channel: "dry-run",
-      delivered: false,
-      note: `SMTP not configured — filing recorded in dry-run. Configure SMTP_* in .env to actually email ${channel.legalEmail}.`,
-    };
-  }
+// Build the message and send through connected Gmail or SMTP fallback.    const subject =
+    `Takedown demand — ${input.classification.category_code} — ` +
+    `${input.platform} — ${confirmation}`;
 
-  const subject = `Takedown demand — ${input.classification.category_code} — ${input.platform} — ${confirmation}`;
-  await getTransport().sendMail({
-    from: config.smtp.from,
-    to: channel.legalEmail,
-    bcc: config.smtp.bcc || undefined,
-    subject,
-    text: `${input.notice}
+  const messageBody = `${input.notice}
 
 — — —
 Filing reference: ${confirmation}
@@ -102,10 +92,37 @@ Sealed evidence (tamper-evident):
   Sealed & signed at: ${input.evidence.sealedAt}
   Authority:          ${input.evidence.attestation.authority}
 Content location:     ${input.evidence.sourceUrl}
-`,
-  });
+`;
 
-  return {
+  if (input.gmailConnectionId) {
+    await sendWithGmail(
+      input.gmailConnectionId,
+      channel.legalEmail,
+      subject,
+      messageBody,
+    );
+  } else {
+    // No connected Gmail and SMTP is unavailable.
+    if (config.smtp.dryRun) {
+      return {
+        ...base,
+        channel: "dry-run",
+        delivered: false,
+        note:
+          `No Gmail account connected and SMTP is not configured. ` +
+          `The filing was recorded without sending to ${channel.legalEmail}.`,
+      };
+    }
+
+    await getTransport().sendMail({
+      from: config.smtp.from,
+      to: channel.legalEmail,
+      bcc: config.smtp.bcc || undefined,
+      subject,
+      text: messageBody,
+    });
+  }
+    return {
     ...base,
     channel: "email",
     delivered: true,
