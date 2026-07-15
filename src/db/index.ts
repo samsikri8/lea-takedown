@@ -21,6 +21,14 @@ db.exec(`
     created_at    TEXT NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS gmail_connections (
+    id            TEXT PRIMARY KEY,
+    email         TEXT,
+    token_sealed  TEXT NOT NULL,
+    created_at    TEXT NOT NULL,
+    updated_at    TEXT NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS evidence (
     id                 TEXT PRIMARY KEY,
     platform           TEXT NOT NULL,

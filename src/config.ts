@@ -45,6 +45,18 @@ export const config = {
     model: process.env.GEMINI_MODEL?.trim() || "gemini-2.0-flash",
   },
 
+  google: {
+  clientId: process.env.GOOGLE_CLIENT_ID?.trim() ?? "",
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET?.trim() ?? "",
+  redirectUri:
+    process.env.GOOGLE_REDIRECT_URI?.trim() ||
+    "http://localhost:8787/api/connect/gmail/callback",
+
+  get configured() {
+    return Boolean(this.clientId && this.clientSecret);
+  },
+},
+
   vault: {
     /** 32-byte AES-256-GCM key for encrypting sealed content at rest. */
     key: Buffer.from(vaultKeyHex, "hex"),

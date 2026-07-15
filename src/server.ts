@@ -22,6 +22,11 @@ import {
   importSession,
   listConnections,
 } from "./features/auth/connect.service.js";
+import {
+  getGoogleAuthUrl,
+  handleGoogleCallback,
+  listGmailConnections,
+} from "./features/auth/gmail.service.js";
 
 const app = new Hono();
 
@@ -43,6 +48,13 @@ app.get("/api/health", (c) =>
 // ── step 1 · connect social ─────────────────────────────────────────────────
 app.get("/api/connect", (c) => c.json({ success: true, data: listConnections() }));
 
+app.get("/api/connect/gmail", (c) =>
+  c.json({
+    success: true,
+    data: listGmailConnections(),
+  }),
+);
+
 app.get("/api/connect/oauth/start", (c) => {
   const platform = c.req.query("platform") ?? "Instagram";
   try {
@@ -62,6 +74,95 @@ app.get("/api/connect/oauth/callback", async (c) => {
     return c.redirect(`/?connected=${encodeURIComponent(conn.platform)}`);
   } catch (e) {
     return c.json({ success: false, error: err(e) }, 400);
+  }
+});
+
+app.get("/api/connect/gmail/start", (c) => {
+  try {
+    const { url } = getGoogleAuthUrl();
+    return c.redirect(url);
+  } catch (e) {
+    return c.json({ success: false, error: err(e) }, 400);
+  }
+});
+
+app.get("/api/connect/gmail/callback", async (c) => {
+  const code = c.req.query("code");
+  const state = c.req.query("state");
+
+  if (!code || !state) {
+    return c.json(
+      { success: false, error: "missing code/state" },
+      400,
+    );
+  }
+
+  try {
+    const connection = await handleGoogleCallback(code, state);
+
+    return c.redirect(
+      `/?gmailConnected=${encodeURIComponent(
+        connection.email ?? "Gmail",
+      )}`,
+    );
+    } catch (e) {
+    console.error("GOOGLE CALLBACK ERROR");
+    console.error(e);
+
+    return c.json(
+      {
+        success: false,
+        error: err(e),
+      },
+      400,
+    );
+  }
+});
+
+app.get("/api/gmail/test", async (c) => {
+  try {
+    const connections = listGmailConnections();
+
+    if (!connections.length) {
+      return c.json({
+        success: false,
+        error: "No Gmail connection found",
+      });
+    }
+
+    const connection = connections[0] as {
+  id: string;
+  email: string | null;
+};
+
+if (!connection.email) {
+  return c.json({
+    success: false,
+    error: "Connected Gmail account has no email address",
+  });
+}
+
+await sendWithGmail(
+  connection.id,
+  connection.email,
+  "Lea Gmail Test",
+  "If you received this email, Gmail OAuth is working!",
+);
+
+return c.json({
+  success: true,
+  data: {
+    sentTo: connection.email,
+  },
+});
+  } catch (e) {
+    return c.json(
+      {
+        success: false,
+        error: e instanceof Error ? e.message : String(e),
+      },
+      500,
+    );
   }
 });
 
@@ -101,12 +202,7 @@ app.post("/api/capture", async (c) => {
   }
 });
 
-app.get("/api/evidence/:id", (c) => {
-  const meta = getEvidenceMeta(c.req.param("id"));
-  return meta
-    ? c.json({ success: true, data: meta })
-    : c.json({ success: false, error: "not found" }, 404);
-});
+
 
 // ── step 5 · classify (standalone) ──────────────────────────────────────────
 const classifySchema = z.object({ description: z.string().min(1), platform: z.string().min(1) });
@@ -125,11 +221,14 @@ app.post("/api/classify", async (c) => {
 app.get("/api/run", (c) => {
   const evidenceId = c.req.query("evidenceId") ?? "";
   const description = c.req.query("description") ?? "";
+  const gmailConnectionId = c.req.query("gmailConnectionId") || undefined;
   return streamSSE(c, async (stream) => {
     const send = (event: string, data: unknown) =>
       stream.writeSSE({ event, data: JSON.stringify(data) });
     try {
-      const result = await runTakedown({ evidenceId, description }, (e) => {
+      const result = await runTakedown(
+  { evidenceId, description, gmailConnectionId },
+  (e) => {
         void send("log", e);
       });
       await send("result", result);
