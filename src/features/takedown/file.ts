@@ -78,7 +78,8 @@ export async function fileTakedown(input: {
     };
   }
 
-// Build the message and send through connected Gmail or SMTP fallback.    const subject =
+  // Build the message and send through connected Gmail or SMTP fallback.
+  const subject =
     `Takedown demand — ${input.classification.category_code} — ` +
     `${input.platform} — ${confirmation}`;
 
