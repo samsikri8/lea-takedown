@@ -27,6 +27,7 @@ import {
   handleGoogleCallback,
   listGmailConnections,
 } from "./features/auth/gmail.service.js";
+import { sendWithGmail } from "./features/takedown/gmail-send.js";
 
 const app = new Hono();
 

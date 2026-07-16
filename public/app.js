@@ -1,5 +1,5 @@
 const $ = (id) => document.getElementById(id);
-const state = { connectionId: null, platform: null, evidence: null };
+const state = { connectionId: null, platform: null, evidence: null, gmailConnectionId: null, gmailEmail: null };
 
 async function api(path, opts) {
   const res = await fetch(path, {
@@ -37,6 +37,11 @@ function startOAuth() {
   window.location.href = `/api/connect/oauth/start?platform=${encodeURIComponent(platform)}`;
 }
 
+function connectGmail() {
+  // Kicks off Google OAuth (gmail.send). Returns to /?gmailConnected=<email>.
+  window.location.href = "/api/connect/gmail/start";
+}
+
 function toggleSession() {
   const box = $("sessionBox");
   box.style.display = box.style.display === "none" ? "block" : "none";
@@ -61,16 +66,25 @@ async function saveSession() {
 }
 
 async function refreshConnections() {
+  const tags = [];
+  // Platform connections (OAuth / imported session).
   try {
     const list = await api("/api/connect");
-    if (!list.length) { $("connList").textContent = ""; return; }
-    $("connList").innerHTML =
-      "Connected: " +
-      list
-        .map((c) => `<span class="tag">${c.platform} · ${c.mode}</span>`)
-        .join(" ");
-    if (!state.connectionId) { state.connectionId = list[0].id; state.platform = list[0].platform; }
+    if (list.length) {
+      list.forEach((c) => tags.push(`<span class="tag">${c.platform} · ${c.mode}</span>`));
+      if (!state.connectionId) { state.connectionId = list[0].id; state.platform = list[0].platform; }
+    }
   } catch { /* ignore */ }
+  // Gmail sending connection.
+  try {
+    const gmail = await api("/api/connect/gmail");
+    if (gmail.length) {
+      state.gmailConnectionId = gmail[0].id;
+      state.gmailEmail = gmail[0].email;
+      tags.push(`<span class="tag">✉️ ${gmail[0].email ?? "Gmail"} · send</span>`);
+    }
+  } catch { /* ignore */ }
+  $("connList").innerHTML = tags.length ? "Connected: " + tags.join(" ") : "";
 }
 
 function gotoCapture() {
@@ -151,6 +165,7 @@ function doRun() {
   $("logBody").innerHTML = "";
 
   const qs = new URLSearchParams({ evidenceId: state.evidence.evidenceId, description });
+  if (state.gmailConnectionId) qs.set("gmailConnectionId", state.gmailConnectionId);
   const es = new EventSource(`/api/run?${qs}`);
 
   es.addEventListener("log", (ev) => {
@@ -199,6 +214,7 @@ function renderCase(result) {
         <div class="verdict-sub">${esc(c.legal_basis)} · severity: ${esc(c.severity)}</div>
       </div>
       <div class="verdict-body">
+        <img class="verdict-mascot" src="/icons/lea-lawyer.png" alt="Lea, legal">
         ${esc(c.rationale)}
         <div style="margin-top:10px">${(c.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
       </div>

@@ -32,6 +32,14 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 .eyebrow{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--pink-600);margin-bottom:6px}
 .title{font-family:var(--font-head);font-size:27px;font-weight:600;letter-spacing:-.01em;margin-bottom:8px}
 .sub{font-size:14px;color:var(--text-muted);margin-bottom:1.25rem}
+/* Lea mascots */
+.hero{display:flex;gap:1.25rem;align-items:center;margin-bottom:1.25rem}
+.hero-text{flex:1;min-width:0}
+.hero-text .sub{margin-bottom:0}
+.hero-mascot{width:132px;height:auto;flex:none;filter:drop-shadow(0 8px 16px rgba(75,21,40,.14))}
+@media(max-width:560px){.hero{gap:.5rem}.hero-mascot{width:88px}}
+.log-mascot{width:28px;height:28px;object-fit:contain;flex:none}
+.verdict-mascot{width:76px;height:auto;float:right;margin:-4px -4px 8px 12px;filter:drop-shadow(0 4px 10px rgba(75,21,40,.16))}
 .safety-bar{display:flex;gap:10px;padding:10px 14px;background:var(--amber-50);border:.5px solid var(--amber-200);border-radius:var(--r-md);margin-bottom:1.5rem}
 .safety-bar span{font-size:13px;color:var(--amber-800)}
 .steps{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
@@ -122,9 +130,14 @@ input.txt:focus,textarea:focus{outline:none;border-color:var(--pink-400)}
 </div>
 
 <div class="page">
-  <p class="eyebrow">Agentic harassment response</p>
-  <h1 class="title">Capture it once. Lea seals it and acts.</h1>
-  <p class="sub">Connect your account, point Lea at the post, and say what happened. Lea seals tamper-evident evidence, classifies the harm, drafts a legal notice, and files it — without you having to look at the content again.</p>
+  <div class="hero">
+    <div class="hero-text">
+      <p class="eyebrow">Agentic harassment response</p>
+      <h1 class="title">Capture it once. Lea seals it and acts.</h1>
+      <p class="sub">Connect your account, point Lea at the post, and say what happened. Lea seals tamper-evident evidence, classifies the harm, drafts a legal notice, and files it — without you having to look at the content again.</p>
+    </div>
+    <img class="hero-mascot" src="/icons/lea-strong.png" alt="Lea, ready to act">
+  </div>
 
   <div class="safety-bar"><span>⚠</span><span>In immediate danger? Call 911. Cyber Civil Rights crisis line: 1-844-878-CCRI.</span></div>
 
@@ -144,6 +157,7 @@ input.txt:focus,textarea:focus{outline:none;border-color:var(--pink-400)}
       <button class="btn secondary" id="oauthBtn" onclick="startOAuth()">Authorize with OAuth →</button>
       <button class="btn secondary" id="sessionBtn" onclick="toggleSession()">Import browser session</button>
     </div>
+    <button class="btn secondary" style="margin-top:10px" id="gmailBtn" onclick="connectGmail()">✉️ Connect Gmail — file the notice from your own account →</button>
     <div id="sessionBox" style="display:none">
       <label class="fld">Platform</label>
       <input class="txt" id="sessPlatform" value="Instagram">
@@ -186,7 +200,7 @@ input.txt:focus,textarea:focus{outline:none;border-color:var(--pink-400)}
   </div>
 
   <div class="log" id="log">
-    <div class="log-head"><div class="pulse" id="pulse"></div><span class="log-head-title" id="logTitle">Lea is working…</span></div>
+    <div class="log-head"><img class="log-mascot" src="/icons/lea-working.png" alt=""><div class="pulse" id="pulse"></div><span class="log-head-title" id="logTitle">Lea is working…</span></div>
     <div class="log-body" id="logBody"></div>
   </div>
 

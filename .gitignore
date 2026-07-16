@@ -5,3 +5,5 @@ node_modules/
 vault.db
 vault.db-*
 server.log
+
+.DS_Store
